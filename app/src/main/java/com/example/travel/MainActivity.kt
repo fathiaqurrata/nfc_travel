@@ -1,7 +1,9 @@
 package com.example.travel
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.nfc.*
 import android.os.Bundle
@@ -9,13 +11,11 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import java.nio.charset.Charset
-import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private var students = mutableListOf<Student>()
     private var isCheckInMode = true
     private val client = OkHttpClient()
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +33,8 @@ class MainActivity : AppCompatActivity() {
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         listView = findViewById(R.id.list_students)
+
+        sharedPreferences = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
 
         updateListView()
 
@@ -52,7 +55,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.status).setOnClickListener {
-            startActivity(Intent(this, StatusActivity::class.java))
+            val userId = sharedPreferences.getString("user_id", null)
+            Log.d("MAIN_ACTIVITY", "User ID: $userId") // Tambahkan log
+            if (userId != null) {
+                val statusIntent = Intent(this, StatusActivity::class.java)
+                statusIntent.putExtra("user_id", userId)
+                startActivity(statusIntent)
+            } else {
+                Toast.makeText(this, "User ID not found in preferences", Toast.LENGTH_SHORT).show()
+            }
         }
 
         pendingIntent = PendingIntent.getActivity(
@@ -212,7 +223,8 @@ class MainActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             toast.cancel()
         }, 4000)
-        val student = students.find { it.fullname== name }
+
+        val student = students.find { it.fullname == name }
         if (student != null) {
             student.checkedIn = isCheckIn
         } else {
@@ -220,7 +232,6 @@ class MainActivity : AppCompatActivity() {
         }
         updateListView()
     }
-
 
     override fun onResume() {
         super.onResume()

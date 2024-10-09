@@ -6,17 +6,16 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var usernameEditText: EditText
     private lateinit var passwordEditText: EditText
-    private lateinit var loginButton: Button
-
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,65 +24,81 @@ class LoginActivity : AppCompatActivity() {
 
         usernameEditText = findViewById(R.id.edit_username)
         passwordEditText = findViewById(R.id.edit_password)
-        loginButton = findViewById(R.id.button_login)
 
-        loginButton.setOnClickListener {
+        findViewById<Button>(R.id.button_login).setOnClickListener {
             val username = usernameEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Username dan password tidak boleh kosong", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            if (username.isBlank() || password.isBlank()) {
+                Toast.makeText(this, "Username dan Password tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            } else {
+                login(username, password)
             }
-
-            login(username, password)
         }
     }
 
     private fun login(username: String, password: String) {
-        val url = "http://api.travel.selada.id/api/auth/login"
+        val url = "http://api.travel.selada.id/api/auth/login" // Ganti dengan URL login yang tepat
 
-        val formBody = FormBody.Builder()
+        val requestBody = FormBody.Builder()
             .add("username", username)
             .add("password", password)
             .build()
 
         val request = Request.Builder()
             .url(url)
-            .post(formBody)
+            .post(requestBody)
             .build()
-
-        Log.d("LoginRequest", "Sending login request to: $url with username: $username") // Log request details
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("LoginError", "Failed to login: ${e.message}")
                 runOnUiThread {
-                    Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@LoginActivity, "Kesalahan jaringan: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+                Log.e("LOGIN_ACTIVITY", "Error: ${e.message}")
             }
 
             override fun onResponse(call: Call, response: Response) {
-                Log.d("LoginResponse", "Received response from: $url") // Log response details
+                val responseBody = response.body?.string()
+                if (response.isSuccessful && responseBody != null) {
+                    try {
+                        val jsonResponse = JSONObject(responseBody)
+                        val message = jsonResponse.getString("message") // Ambil pesan dari respons
 
-                runOnUiThread {
-                    if (response.isSuccessful) {
-                        // Handle successful login
-                        response.body?.string()?.let { responseBody ->
-                            Log.i("LoginSuccess", "Response: $responseBody")
+                        // Ambil ID pengguna dari respons
+                        val userId = jsonResponse.getJSONObject("user").getString("id") // Ambil ID pengguna
+
+                        // Simpan ID pengguna ke SharedPreferences
+                        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+                        sharedPreferences.edit().putString("user_id", userId).apply() // Simpan ID pengguna
+
+                        // Log isi SharedPreferences
+                        logSharedPreferences()
+
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finish()
                         }
-                    } else {
-                        Log.w("LoginFailed", "Login failed with status: ${response.code} - ${response.message}")
-                        AlertDialog.Builder(this@LoginActivity)
-                            .setTitle("Login Gagal")
-                            .setMessage("Username atau password salah.")
-                            .setPositiveButton("OK", null)
-                            .show()
+                    } catch (e: JSONException) {
+                        Log.e("LOGIN_ACTIVITY", "JSON Parsing Error: ${e.message}")
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity, "Kesalahan dalam respons dari server", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Log.e("LOGIN_ACTIVITY", "Error: ${response.message}, Body: $responseBody") // Log detail error
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity, "Login gagal: ${response.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         })
+    }
+
+    private fun logSharedPreferences() {
+        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val userId = sharedPreferences.getString("user_id", null)
+        Log.d("SHARED_PREFERENCES", "User ID stored: $userId")
     }
 }
