@@ -8,7 +8,7 @@
     android:layout_marginTop="8dp"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
-    android:background="@drawable/border_background">
+    android:background="@drawable/border_background"> <!-- Menggunakan border untuk kartu -->
 
     <TextView
         android:id="@+id/name_text"
@@ -17,7 +17,7 @@
         android:textSize="20sp"
         android:textColor="@android:color/black"
         android:text="Name"
-        android:textStyle="bold" />
+        android:textStyle="bold" /> <!-- Menambahkan teks tebal untuk nama -->
 
     <TextView
         android:id="@+id/seat_text"

@@ -4,9 +4,17 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gray">#A9A9A9</color>
     <color name="light_gray">#F5F5F5</color>
-    <color name="colorAccent">#FF4081</color>
     <color name="violet">#9370DB</color>
     <color name="green">#4CAF50</color>
     <color name="red">#D75656</color>
     <color name="lavender">#B28FD5</color>
+    <color name="colorPrimary">#1976D2</color>
+    <color name="colorPrimaryDark">#1565C0</color>
+    <color name="colorAccent">#03A9F4</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorTextPrimary">#212121</color>
+    <color name="colorTextSecondary">#757575</color>
+    <color name="colorPrimaryLight">#64B5F6</color>  <!-- Warna biru yang lebih terang -->
+    <color name="colorPrimaryLighter">#BBDEFB</color> <!-- Warna biru yang lebih muda -->
+    <color name="colorPrimaryDarker">#1565C0</color>   <!-- Warna biru yang lebih gelap dan senada -->
 </resources>

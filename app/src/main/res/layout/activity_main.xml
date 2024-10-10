@@ -10,7 +10,7 @@
         android:id="@+id/check_in"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/lavender"
+        android:backgroundTint="@color/colorPrimaryLight"
         android:text="Check In"
         android:textColor="#FFFFFF"
         android:padding="12dp"
@@ -39,7 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Status"
-        android:backgroundTint="@color/dark_gray"
+        android:backgroundTint="@color/colorPrimaryLighter"
         android:textColor="#000000"
         android:padding="12dp"
         android:layout_marginBottom="16dp" />

@@ -1,9 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Travel" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-    </style>
+    <!-- Base application theme -->
+    <style name="Theme.Travel" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDarker</item>
+        <item name="colorOnPrimary">@android:color/white</item>
 
-    <style name="Theme.Travel" parent="Base.Theme.Travel" />
+        <!-- Secondary color (Accent) -->
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="colorSecondaryVariant">@color/colorAccent</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+
+        <!-- Background and Surface -->
+        <item name="colorSurface">@color/colorBackground</item>
+        <item name="colorOnBackground">@color/colorTextPrimary</item>
+        <item name="colorOnSurface">@color/colorTextPrimary</item>
+
+        <!-- Status bar color (optional) -->
+        <item name="android:statusBarColor">@color/colorPrimaryDarker</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>
