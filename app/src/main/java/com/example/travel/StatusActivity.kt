@@ -30,7 +30,6 @@ class StatusActivity : AppCompatActivity() {
         val userIdTextView = findViewById<TextView>(R.id.user_id_text_view)
         userIdTextView.text = "User ID: $userId"
 
-        // Fetch status information from the API
         fetchStatus(userId) // Pass the userId to the fetchStatus function
     }
 
@@ -123,7 +122,6 @@ class StatusActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    // Handle the unsuccessful response
                     runOnUiThread {
                         findViewById<TextView>(R.id.status_text).text = "Failed to fetch status: ${response.message}"
                     }

@@ -207,9 +207,9 @@ class MainActivity : AppCompatActivity() {
     private fun showCheckInCheckOutDialog(name: String, tagId: String?, isCheckIn: Boolean = true) {
         val status = if (isCheckIn) "Check-In" else "Check-Out"
         val backgroundColor = if (isCheckIn) {
-            Color.parseColor("#15563B")
+            Color.parseColor("#4CAF50")
         } else {
-            Color.parseColor("#8B0000")
+            Color.parseColor("#D75656")
         }
 
         val toast = Toast.makeText(this, "$status Successful: $name", Toast.LENGTH_SHORT)
