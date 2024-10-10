@@ -24,7 +24,6 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/user_id_text_view"
+        android:layout_below="@id/status_text"
         android:layout_marginTop="16dp" />
-
 </RelativeLayout>

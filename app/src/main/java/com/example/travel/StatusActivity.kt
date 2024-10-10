@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.*
 import org.json.JSONArray
@@ -79,7 +79,7 @@ class StatusActivity : AppCompatActivity() {
 
                         runOnUiThread {
                             val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-                            recyclerView.layoutManager = LinearLayoutManager(this@StatusActivity)
+                            recyclerView.layoutManager = GridLayoutManager(this@StatusActivity, 2) // Set to 2 columns
                             val adapter = MemberAdapter(memberList) { member -> showPhoneNumber(member) }
                             recyclerView.adapter = adapter
                         }

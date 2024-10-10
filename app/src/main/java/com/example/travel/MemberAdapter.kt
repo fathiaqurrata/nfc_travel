@@ -14,7 +14,6 @@ class MemberAdapter(
     class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameTextView: TextView = view.findViewById(R.id.member_name)
         val seatTextView: TextView = view.findViewById(R.id.member_seat)
-        val phoneTextView: TextView = view.findViewById(R.id.member_phone) // Menambahkan TextView untuk nomor telepon
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -26,7 +25,6 @@ class MemberAdapter(
         val member = members[position]
         holder.nameTextView.text = member.fullname
         holder.seatTextView.text = member.seat
-        holder.phoneTextView.text = member.phone // Mengatur teks nomor telepon
         holder.itemView.setOnClickListener { onMemberClick(member) }
     }
 
