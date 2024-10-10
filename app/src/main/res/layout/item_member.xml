@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -5,26 +6,21 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/fullname_text_view"
+        android:id="@+id/member_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Full Name"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"/>
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/phone_text_view"
+        android:id="@+id/member_seat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Phone"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"/>
+        android:textSize="14sp" />
 
     <TextView
-        android:id="@+id/seat_text_view"
+        android:id="@+id/member_phone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Seat"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"/>
+        android:textSize="14sp" />
 </LinearLayout>

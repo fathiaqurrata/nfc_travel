@@ -6,12 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class MemberAdapter(private val memberList: List<Member>) : RecyclerView.Adapter<MemberAdapter.MemberViewHolder>() {
+class MemberAdapter(
+    private val members: List<Member>,
+    private val onMemberClick: (Member) -> Unit
+) : RecyclerView.Adapter<MemberAdapter.MemberViewHolder>() {
 
-    class MemberViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val fullnameTextView: TextView = itemView.findViewById(R.id.fullname_text_view)
-        val phoneTextView: TextView = itemView.findViewById(R.id.phone_text_view)
-        val seatTextView: TextView = itemView.findViewById(R.id.seat_text_view)
+    class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val nameTextView: TextView = view.findViewById(R.id.member_name)
+        val seatTextView: TextView = view.findViewById(R.id.member_seat)
+        val phoneTextView: TextView = view.findViewById(R.id.member_phone) // Menambahkan TextView untuk nomor telepon
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -20,11 +23,12 @@ class MemberAdapter(private val memberList: List<Member>) : RecyclerView.Adapter
     }
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
-        val member = memberList[position]
-        holder.fullnameTextView.text = member.fullname
-        holder.phoneTextView.text = "Phone: ${member.phone}"
-        holder.seatTextView.text = "Seat: ${member.seat}"
+        val member = members[position]
+        holder.nameTextView.text = member.fullname
+        holder.seatTextView.text = member.seat
+        holder.phoneTextView.text = member.phone // Mengatur teks nomor telepon
+        holder.itemView.setOnClickListener { onMemberClick(member) }
     }
 
-    override fun getItemCount() = memberList.size
+    override fun getItemCount() = members.size
 }

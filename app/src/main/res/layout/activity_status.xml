@@ -21,7 +21,7 @@
         android:textColor="@android:color/black"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/status_recycler_view"
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/user_id_text_view"
