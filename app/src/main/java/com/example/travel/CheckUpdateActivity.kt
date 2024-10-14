@@ -12,9 +12,8 @@ class CheckUpdateActivity : AppCompatActivity() {
         setContentView(R.layout.activity_check_update)
 
         findViewById<Button>(R.id.button_continue).setOnClickListener {
-            // Berpindah ke halaman login
             startActivity(Intent(this, LoginActivity::class.java))
-            finish() // Menutup activity check update agar tidak kembali ke halaman ini
+            finish()
         }
     }
 }

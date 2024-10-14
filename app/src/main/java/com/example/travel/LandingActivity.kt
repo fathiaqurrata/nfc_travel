@@ -15,14 +15,12 @@ class LandingActivity : AppCompatActivity() {
         val buttonDashboard: Button = findViewById(R.id.button_dashboard)
 
         buttonRegister.setOnClickListener {
-            // Navigate to registration activity (you need to create RegisterActivity)
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
         buttonDashboard.setOnClickListener {
-            // Navigate to MainActivity (dashboard)
             startActivity(Intent(this, MainActivity::class.java))
-            finish() // Optional: finish this activity so it's removed from the back stack
+            finish()
         }
     }
 }

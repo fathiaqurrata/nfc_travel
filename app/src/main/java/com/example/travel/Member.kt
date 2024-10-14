@@ -4,5 +4,5 @@ data class Member(
     val fullname: String,
     val phone: String,
     val seat: String,
-    val attendanceStatus: String // Tambahkan properti status kehadiran
+    val attendanceStatus: String
 )

@@ -45,12 +45,10 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        // Show NFC dialog immediately when entering the RegisterActivity
         showNfcDialog()
 
-        // Register button click listener
         findViewById<Button>(R.id.button_register).setOnClickListener {
-            registerUser() // Call to register the user
+            registerUser()
         }
     }
 
@@ -81,7 +79,7 @@ class RegisterActivity : AppCompatActivity() {
             val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
             val nfcId = tag?.id?.let { bytesToHex(it) }
             if (nfcId != null) {
-                saveCardNumber(nfcId) // Save NFC ID as it is
+                saveCardNumber(nfcId)
                 nfcDialog.dismiss()
             }
         }
@@ -108,7 +106,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun bytesToHex(bytes: ByteArray): String {
-        return bytes.joinToString("") { "%02X".format(it) } // Convert bytes to hexadecimal representation in uppercase
+        return bytes.joinToString("") { "%02X".format(it) }
     }
 
     private fun registerUser() {
@@ -117,25 +115,22 @@ class RegisterActivity : AppCompatActivity() {
         val cardNumber = cardNumberEditText.text.toString().trim()
         val seatNumber = seatEditText.text.toString().trim()
 
-        // Retrieve the bus location from SharedPreferences
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         val busLocation = sharedPreferences.getString("id_bus", null)
 
-        // Validate input fields
         if (fullName.isEmpty() || phoneNumber.isEmpty() || cardNumber.isEmpty() || seatNumber.isEmpty() || busLocation.isNullOrEmpty()) {
             Toast.makeText(this, "All fields must be filled", Toast.LENGTH_SHORT).show()
             Log.e("RegisterActivity", "All fields must be filled")
             return
         }
 
-        // Prepare JSON object for the request
         val jsonObject = JSONObject()
         try {
             jsonObject.put("fullname", fullName)
             jsonObject.put("phone_number", phoneNumber)
             jsonObject.put("card_number", cardNumber)
             jsonObject.put("seat", seatNumber)
-            jsonObject.put("bus_location", busLocation) // Add bus location to the JSON object
+            jsonObject.put("bus_location", busLocation)
         } catch (e: JSONException) {
             Log.e("RegisterActivity", "JSON Exception: ${e.message}")
             e.printStackTrace()
@@ -143,7 +138,6 @@ class RegisterActivity : AppCompatActivity() {
 
         Log.d("RegisterActivity", "Sending registration request: $jsonObject")
 
-        // Create the request body
         val requestBody = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), jsonObject.toString())
         val url = "http://travel.selada.id/api/auth/register/member"
         val request = Request.Builder()
@@ -151,7 +145,6 @@ class RegisterActivity : AppCompatActivity() {
             .post(requestBody)
             .build()
 
-        // Send the registration request
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e("RegisterActivity", "Registration request failed: ${e.message}")

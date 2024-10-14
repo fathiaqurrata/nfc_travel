@@ -74,7 +74,6 @@ class LoginActivity : AppCompatActivity() {
                         val roleId = user.getString("role_id")
                         val idBus = user.getString("id_bus")
 
-                        // Save all user data in SharedPreferences
                         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                         sharedPreferences.edit()
                             .putString("user_id", userId)
@@ -86,7 +85,6 @@ class LoginActivity : AppCompatActivity() {
                             .putString("id_bus", idBus)
                             .apply()
 
-                        // Log all saved data for verification
                         logSharedPreferences()
 
                         runOnUiThread {

@@ -45,18 +45,18 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.check_in).setOnClickListener {
             isCheckInMode = true
-            isButtonPressed = true // Set button pressed state
-            showNfcPromptDialog() // Show NFC prompt dialog for check-in
+            isButtonPressed = true
+            showNfcPromptDialog()
         }
 
         findViewById<Button>(R.id.check_out).setOnClickListener {
             isCheckInMode = false
-            isButtonPressed = true // Set button pressed state
-            showNfcPromptDialog() // Show NFC prompt dialog for check-out
+            isButtonPressed = true
+            showNfcPromptDialog()
         }
 
         findViewById<Button>(R.id.check_out_all).setOnClickListener {
-            checkoutAll() // Show NFC prompt dialog for check-out
+            checkoutAll()
         }
 
         findViewById<Button>(R.id.status).setOnClickListener {
@@ -150,7 +150,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Reset button pressed state after processing
         isButtonPressed = false
     }
 
@@ -275,26 +274,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkoutAll() {
-        // Ambil user_id dari SharedPreferences
         val userId = sharedPreferences.getString("user_id", null)
 
-        // Cek apakah userId tidak null
         if (userId != null) {
-            // URL endpoint untuk checkout all
             val url = "http://travel.selada.id/api/members/checkoutAll" // Ganti dengan URL API Anda
 
-            // Buat request body
             val requestBody = FormBody.Builder()
                 .add("user_id", userId)
                 .build()
 
-            // Buat request
             val request = Request.Builder()
                 .url(url)
                 .post(requestBody)
                 .build()
 
-            // Eksekusi request
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     runOnUiThread {
@@ -308,7 +301,6 @@ class MainActivity : AppCompatActivity() {
                         runOnUiThread {
                             Toast.makeText(this@MainActivity, "All students checked out successfully", Toast.LENGTH_SHORT).show()
                         }
-                        // Opsional: Update UI atau refresh daftar siswa di sini
                     } else {
                         runOnUiThread {
                             Toast.makeText(this@MainActivity, "Failed to checkout all: ${response.message}", Toast.LENGTH_SHORT).show()
