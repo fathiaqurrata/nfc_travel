@@ -1,11 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">api.travel.selada.id</domain>
+        <domain includeSubdomains="true">travel.selada.id</domain>
     </domain-config>
-</network-security-config><!--<?xml version="1.0" encoding="utf-8"?>-->
-<!--<network-security-config>-->
-<!--    <domain-config cleartextTrafficPermitted="true">-->
-<!--        <domain includeSubdomains="true">vabjbs.selada.id</domain>-->
-<!--    </domain-config>-->
-<!--</network-security-config>-->
+</network-security-config>

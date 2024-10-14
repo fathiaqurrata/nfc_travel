@@ -14,6 +14,7 @@ class MemberAdapter(
     class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameTextView: TextView = view.findViewById(R.id.member_name)
         val seatTextView: TextView = view.findViewById(R.id.member_seat)
+        val attendanceTextView: TextView = view.findViewById(R.id.member_attendance) // Tambahkan TextView untuk status
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -25,8 +26,10 @@ class MemberAdapter(
         val member = members[position]
         holder.nameTextView.text = member.fullname
         holder.seatTextView.text = member.seat
+        holder.attendanceTextView.text = member.attendanceStatus // Tampilkan status kehadiran
         holder.itemView.setOnClickListener { onMemberClick(member) }
     }
 
     override fun getItemCount() = members.size
 }
+

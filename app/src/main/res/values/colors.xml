@@ -14,7 +14,9 @@
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorTextPrimary">#212121</color>
     <color name="colorTextSecondary">#757575</color>
-    <color name="colorPrimaryLight">#64B5F6</color>  <!-- Warna biru yang lebih terang -->
-    <color name="colorPrimaryLighter">#BBDEFB</color> <!-- Warna biru yang lebih muda -->
-    <color name="colorPrimaryDarker">#1565C0</color>   <!-- Warna biru yang lebih gelap dan senada -->
+    <color name="colorPrimaryLight">#64B5F6</color>
+    <color name="colorPrimaryLighter">#BBDEFB</color>
+    <color name="colorPrimaryDarker">#1565C0</color>
+    <color name="soft_green">#A5D6A7</color>
+    <color name="soft_red">#EF9A9A</color>
 </resources>

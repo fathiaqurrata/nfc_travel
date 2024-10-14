@@ -1,6 +1,8 @@
 package com.example.travel
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -36,7 +38,7 @@ class StatusActivity : AppCompatActivity() {
     }
 
     private fun fetchStatus(userId: String) {
-        val url = "http://api.travel.selada.id/api/member/locations"
+        val url = "http://travel.selada.id/api/member/locations"
         val jsonBody = JSONObject().apply {
             put("user_id", userId)
         }
@@ -65,21 +67,24 @@ class StatusActivity : AppCompatActivity() {
                     Log.d("StatusActivity", "Response: $responseBody")
 
                     try {
-                        // Parse JSON response
                         val jsonObject = JSONObject(responseBody)
-                        val membersArray: JSONArray = jsonObject.getJSONArray("members")
+                        val participantsArray: JSONArray = jsonObject.getJSONArray("participants")
 
-                        for (i in 0 until membersArray.length()) {
-                            val memberObject = membersArray.getJSONObject(i)
-                            val fullname = memberObject.getString("fullname") // Adjust this based on your JSON structure
-                            val phone = memberObject.getString("phone") // Adjust this based on your JSON structure
-                            val seat = memberObject.getString("seat") // Adjust this based on your JSON structure
-                            memberList.add(Member(fullname, phone, seat, false))
+                        for (i in 0 until participantsArray.length()) {
+                            val memberObject = participantsArray.getJSONObject(i)
+                            val fullname = memberObject.optString("fullname", "Unknown")
+                            val phone = memberObject.optString("phone", "Unknown")
+                            val seat = memberObject.optString("seat", "Unknown")
+                            val status = memberObject.optInt("status", 0)
+
+                            val attendanceStatus = if (status == 1) "Hadir" else "Tidak Hadir"
+
+                            memberList.add(Member(fullname, phone, seat, attendanceStatus))
                         }
 
                         runOnUiThread {
                             val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-                            recyclerView.layoutManager = GridLayoutManager(this@StatusActivity, 2) // Set to 2 columns
+                            recyclerView.layoutManager = GridLayoutManager(this@StatusActivity, 2)
                             val adapter = MemberAdapter(memberList) { member -> showPhoneNumber(member) }
                             recyclerView.adapter = adapter
                         }
@@ -99,7 +104,16 @@ class StatusActivity : AppCompatActivity() {
     }
 
     private fun showPhoneNumber(member: Member) {
-        val message = "Phone: ${member.phone}"
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        val phoneNumber = member.phone
+
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse("https://wa.me/$phoneNumber")
+        }
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            Toast.makeText(this, "WhatsApp tidak terinstal.", Toast.LENGTH_SHORT).show()
+        }
     }
 }

@@ -3,14 +3,17 @@ package com.example.travel
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.nfc.*
+import android.nfc.tech.Ndef
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import org.json.JSONObject
@@ -24,8 +27,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listView: ListView
     private var students = mutableListOf<Student>()
     private var isCheckInMode = true
+    private var isButtonPressed = false // State variable
     private val client = OkHttpClient()
     private lateinit var sharedPreferences: SharedPreferences
+    private var nfcDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,23 +45,23 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.check_in).setOnClickListener {
             isCheckInMode = true
-            Toast.makeText(this, "Check-in mode active, tap NFC", Toast.LENGTH_SHORT).show()
+            isButtonPressed = true // Set button pressed state
+            showNfcPromptDialog() // Show NFC prompt dialog for check-in
         }
 
         findViewById<Button>(R.id.check_out).setOnClickListener {
             isCheckInMode = false
-            Toast.makeText(this, "Check-out mode active, tap NFC", Toast.LENGTH_SHORT).show()
+            isButtonPressed = true // Set button pressed state
+            showNfcPromptDialog() // Show NFC prompt dialog for check-out
         }
 
         findViewById<Button>(R.id.check_out_all).setOnClickListener {
-            students.forEach { it.checkedIn = false }
-            updateListView()
-            Toast.makeText(this, "All students checked out", Toast.LENGTH_SHORT).show()
+            checkoutAll() // Show NFC prompt dialog for check-out
         }
 
         findViewById<Button>(R.id.status).setOnClickListener {
             val userId = sharedPreferences.getString("user_id", null)
-            Log.d("MAIN_ACTIVITY", "User ID: $userId") // Tambahkan log
+            Log.d("MAIN_ACTIVITY", "User ID: $userId")
             if (userId != null) {
                 val statusIntent = Intent(this, StatusActivity::class.java)
                 statusIntent.putExtra("user_id", userId)
@@ -84,6 +89,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showNfcPromptDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_tap_nfc, null)
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+
+        nfcDialog = dialogBuilder.create()
+        nfcDialog?.show()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            nfcDialog?.dismiss()
+        }, 5000) // Dismiss dialog after 5 seconds
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
@@ -93,6 +112,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleNfcTag(tag: Tag, intent: Intent) {
+        // Dismiss the NFC dialog when a tag is detected
+        nfcDialog?.dismiss()
+
+        if (!isButtonPressed) {
+            Log.d("NFC_TAG", "NFC tag read, but no button was pressed. Ignoring...")
+            return // Do not proceed if no button was pressed
+        }
+
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
         if (rawMessages != null) {
             val messages = rawMessages.map { it as NdefMessage }
@@ -122,11 +149,19 @@ class MainActivity : AppCompatActivity() {
                 checkOutWithTag(tagId)
             }
         }
+
+        // Reset button pressed state after processing
+        isButtonPressed = false
     }
 
     private fun checkInWithTag(tagId: String) {
-        val url = "http://api.travel.selada.id/api/members/checkin"
+        // Cek jika siswa sudah melakukan check-in
+        if (students.any { it.tagId == tagId && it.checkedIn }) {
+            Toast.makeText(this, "Student already checked in.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
+        val url = "http://travel.selada.id/api/members/checkin"
         val requestBody = FormBody.Builder()
             .add("tag_nfc", tagId)
             .build()
@@ -141,32 +176,52 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread {
                     Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-                Log.e("NFC_TAG", "Error: ${e.message}")
+                Log.e("NFC_TAG", "Error during check-in: ${e.message}")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    val jsonResponse = JSONObject(response.body?.string() ?: "")
-                    val fullname = jsonResponse.getString("fullname")
-                    val status = jsonResponse.getString("status")
+                    try {
+                        val jsonResponse = JSONObject(response.body?.string() ?: "")
+                        val fullname = jsonResponse.optString("fullname", null)
+                        val status = jsonResponse.optString("status", null)
 
-                    runOnUiThread {
-                        showCheckInCheckOutDialog(fullname, tagId)
-                        Log.d("NFC_TAG", "Check-in response: $fullname, Status: $status")
+                        // Log response dari server
+                        Log.d("NFC_TAG", "Check-in response: Fullname: $fullname, Status: $status")
+
+                        if (fullname != null) {
+                            runOnUiThread {
+                                showCheckInCheckOutDialog(fullname, tagId)
+                            }
+                        } else {
+                            runOnUiThread {
+                                Toast.makeText(this@MainActivity, "Check-in failed: Sudah melakukan Check-in", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("NFC_TAG", "Error parsing JSON response during check-in: ${e.message}")
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "Error processing response", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 } else {
                     runOnUiThread {
                         Toast.makeText(this@MainActivity, "Failed to check-in: ${response.message}", Toast.LENGTH_SHORT).show()
                     }
-                    Log.e("NFC_TAG", "Error: ${response.message}")
+                    Log.e("NFC_TAG", "Check-in error response: ${response.message}")
                 }
             }
         })
     }
 
     private fun checkOutWithTag(tagId: String) {
-        val url = "http://api.travel.selada.id/api/members/checkout"
+        // Cek jika siswa sudah melakukan check-out
+        if (students.any { it.tagId == tagId && !it.checkedIn }) {
+            Toast.makeText(this, "Student already checked out.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
+        val url = "http://travel.selada.id/api/members/checkout"
         val requestBody = FormBody.Builder()
             .add("tag_nfc", tagId)
             .build()
@@ -179,29 +234,92 @@ class MainActivity : AppCompatActivity() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Failed to check-out", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-                Log.e("NFC_TAG", "Error: ${e.message}")
+                Log.e("NFC_TAG", "Error during check-out: ${e.message}")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    val jsonResponse = JSONObject(response.body?.string() ?: "")
-                    val fullname = jsonResponse.getString("fullname")
-                    val status = jsonResponse.getString("status")
+                    try {
+                        val jsonResponse = JSONObject(response.body?.string() ?: "")
+                        val fullname = jsonResponse.optString("fullname", null)
+                        val status = jsonResponse.optString("status", null)
 
-                    runOnUiThread {
-                        showCheckInCheckOutDialog(fullname, tagId, false)
-                        Log.d("NFC_TAG", "Check-out response: $fullname, Status: $status")
+                        // Log response dari server
+                        Log.d("NFC_TAG", "Check-out response: Fullname: $fullname, Status: $status")
+
+                        if (fullname != null) {
+                            runOnUiThread {
+                                showCheckInCheckOutDialog(fullname, tagId, false)
+                            }
+                        } else {
+                            runOnUiThread {
+                                Toast.makeText(this@MainActivity, "Check-out failed: Sudah melakukan Check-out", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("NFC_TAG", "Error parsing JSON response during check-out: ${e.message}")
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "Error processing response", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 } else {
                     runOnUiThread {
                         Toast.makeText(this@MainActivity, "Failed to check-out: ${response.message}", Toast.LENGTH_SHORT).show()
                     }
-                    Log.e("NFC_TAG", "Error: ${response.message}")
+                    Log.e("NFC_TAG", "Check-out error response: ${response.message}")
                 }
             }
         })
+    }
+
+    private fun checkoutAll() {
+        // Ambil user_id dari SharedPreferences
+        val userId = sharedPreferences.getString("user_id", null)
+
+        // Cek apakah userId tidak null
+        if (userId != null) {
+            // URL endpoint untuk checkout all
+            val url = "http://travel.selada.id/api/members/checkoutAll" // Ganti dengan URL API Anda
+
+            // Buat request body
+            val requestBody = FormBody.Builder()
+                .add("user_id", userId)
+                .build()
+
+            // Buat request
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build()
+
+            // Eksekusi request
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                    Log.e("CHECKOUT_ALL", "Error during checkout all: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (response.isSuccessful) {
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "All students checked out successfully", Toast.LENGTH_SHORT).show()
+                        }
+                        // Opsional: Update UI atau refresh daftar siswa di sini
+                    } else {
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity, "Failed to checkout all: ${response.message}", Toast.LENGTH_SHORT).show()
+                        }
+                        Log.e("CHECKOUT_ALL", "Checkout all error response: ${response.message}")
+                    }
+                }
+            })
+        } else {
+            Toast.makeText(this, "User ID not found in preferences", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showCheckInCheckOutDialog(name: String, tagId: String?, isCheckIn: Boolean = true) {
@@ -233,9 +351,12 @@ class MainActivity : AppCompatActivity() {
         updateListView()
     }
 
+
     override fun onResume() {
         super.onResume()
-        nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null)
+        val intentFilter = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
+        val filters = arrayOf(intentFilter)
+        nfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, null)
     }
 
     override fun onPause() {
@@ -243,3 +364,4 @@ class MainActivity : AppCompatActivity() {
         nfcAdapter.disableForegroundDispatch(this)
     }
 }
+
