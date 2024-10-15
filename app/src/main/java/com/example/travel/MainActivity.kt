@@ -177,10 +177,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkInWithTag(tagId: String) {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val userId = sharedPreferences.getString("user_id", null)
 
-        if (students.any { it.tagId == tagId && it.checkedIn } || userId.isNullOrEmpty()) {
+        if (students.any { it.tagId == tagId && it.checkedIn }) {
             Toast.makeText(this, "Student already checked in.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -188,7 +186,6 @@ class MainActivity : AppCompatActivity() {
         val url = "http://travel.selada.id/api/members/checkin"
         val requestBody = FormBody.Builder()
             .add("tag_nfc", tagId)
-            .add("user_id", userId)
             .build()
 
         val request = Request.Builder()
@@ -239,10 +236,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkOutWithTag(tagId: String) {
-        val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val userId = sharedPreferences.getString("user_id", null)
 
-        if (students.any { it.tagId == tagId && it.checkedIn } || userId.isNullOrEmpty()) {
+        if (students.any { it.tagId == tagId && it.checkedIn }) {
             Toast.makeText(this, "Student already checked in.", Toast.LENGTH_SHORT).show()
             return
         }
@@ -250,7 +245,6 @@ class MainActivity : AppCompatActivity() {
         val url = "http://travel.selada.id/api/members/checkout"
         val requestBody = FormBody.Builder()
             .add("tag_nfc", tagId)
-            .add("user_id", userId)
             .build()
 
         val request = Request.Builder()
