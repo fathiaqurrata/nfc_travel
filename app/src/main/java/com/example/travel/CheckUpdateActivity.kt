@@ -16,4 +16,9 @@ class CheckUpdateActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishAffinity()
+    }
 }

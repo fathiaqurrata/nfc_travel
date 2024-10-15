@@ -8,36 +8,38 @@
     android:background="@android:color/white">
 
     <ImageView
-        android:id="@+id/seat_icon"
-        android:layout_width="150dp"
-        android:layout_height="127dp"
-        android:layout_marginBottom="50dp"
-        android:layout_gravity="center"
-        android:contentDescription="Seat Icon"
-        android:src="@mipmap/img" />
+    android:id="@+id/seat_icon"
+    android:layout_width="150dp"
+    android:layout_height="127dp"
+    android:layout_marginBottom="50dp"
+    android:contentDescription="Seat Icon"
+    android:src="@mipmap/img" />
 
     <TextView
-        android:id="@+id/version_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Versi Aplikasi: 1.0"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black" />
+    android:id="@+id/version_text"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Versi Aplikasi: 1.0"
+    android:textSize="24sp"
+    android:textStyle="bold"
+    android:textColor="@android:color/black"
+    android:gravity="center" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selamat datang di aplikasi Travel SeladaSssss!"
-        android:textSize="18sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="8dp" />
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Selamat datang di aplikasi Travel Selada!"
+    android:textSize="18sp"
+    android:gravity="center"
+    android:textColor="@android:color/darker_gray"
+    android:layout_marginTop="8dp" />
 
     <Button
-        android:id="@+id/button_continue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lanjutkan ke Login"
-        android:layout_marginTop="16dp"
-        android:padding="12dp" />
+    android:id="@+id/button_continue"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Lanjutkan ke Login"
+    android:layout_marginTop="16dp"
+    android:padding="12dp"
+    android:layout_gravity="center" />
 </LinearLayout>

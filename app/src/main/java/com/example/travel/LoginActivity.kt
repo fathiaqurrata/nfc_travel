@@ -122,4 +122,12 @@ class LoginActivity : AppCompatActivity() {
                 "ID: $userId, \nUsername: $username, \nEmail: $email, \nPhone: $phone, \n" +
                 "Fullname: $fullname, \nRole ID: $roleId, \nBus ID: $idBus")
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, CheckUpdateActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+        finish()
+    }
 }

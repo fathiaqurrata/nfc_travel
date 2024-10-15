@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listView: ListView
     private var students = mutableListOf<Student>()
     private var isCheckInMode = true
-    private var isButtonPressed = false // State variable
+    private var isButtonPressed = false
     private val client = OkHttpClient()
     private lateinit var sharedPreferences: SharedPreferences
     private var nfcDialog: AlertDialog? = null
@@ -56,7 +56,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.check_out_all).setOnClickListener {
-            checkoutAll()
+            students.forEach { it.checkedIn = false }
+            showCheckoutAllConfirmationDialog()
         }
 
         findViewById<Button>(R.id.status).setOnClickListener {
@@ -100,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed({
             nfcDialog?.dismiss()
-        }, 5000) // Dismiss dialog after 5 seconds
+        }, 5000)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -110,14 +111,37 @@ class MainActivity : AppCompatActivity() {
             handleNfcTag(it, intent)
         }
     }
+    private fun showCheckoutAllConfirmationDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_confirmation, null)
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+
+        val textView = dialogView.findViewById<TextView>(R.id.text_view_message)
+        val buttonOk = dialogView.findViewById<Button>(R.id.button_ok)
+        val buttonCancel = dialogView.findViewById<Button>(R.id.button_cancel)
+
+        textView.text = "Apakah Anda yakin ingin checkout semua siswa?"
+
+        buttonOk.setOnClickListener {
+            checkoutAll()
+            dialog.dismiss()
+        }
+
+        buttonCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
 
     private fun handleNfcTag(tag: Tag, intent: Intent) {
-        // Dismiss the NFC dialog when a tag is detected
         nfcDialog?.dismiss()
 
         if (!isButtonPressed) {
             Log.d("NFC_TAG", "NFC tag read, but no button was pressed. Ignoring...")
-            return // Do not proceed if no button was pressed
+            return
         }
 
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
@@ -149,12 +173,10 @@ class MainActivity : AppCompatActivity() {
                 checkOutWithTag(tagId)
             }
         }
-
         isButtonPressed = false
     }
 
     private fun checkInWithTag(tagId: String) {
-        // Cek jika siswa sudah melakukan check-in
         if (students.any { it.tagId == tagId && it.checkedIn }) {
             Toast.makeText(this, "Student already checked in.", Toast.LENGTH_SHORT).show()
             return
@@ -185,7 +207,6 @@ class MainActivity : AppCompatActivity() {
                         val fullname = jsonResponse.optString("fullname", null)
                         val status = jsonResponse.optString("status", null)
 
-                        // Log response dari server
                         Log.d("NFC_TAG", "Check-in response: Fullname: $fullname, Status: $status")
 
                         if (fullname != null) {
@@ -214,7 +235,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkOutWithTag(tagId: String) {
-        // Cek jika siswa sudah melakukan check-out
         if (students.any { it.tagId == tagId && !it.checkedIn }) {
             Toast.makeText(this, "Student already checked out.", Toast.LENGTH_SHORT).show()
             return
@@ -245,7 +265,6 @@ class MainActivity : AppCompatActivity() {
                         val fullname = jsonResponse.optString("fullname", null)
                         val status = jsonResponse.optString("status", null)
 
-                        // Log response dari server
                         Log.d("NFC_TAG", "Check-out response: Fullname: $fullname, Status: $status")
 
                         if (fullname != null) {
@@ -277,7 +296,7 @@ class MainActivity : AppCompatActivity() {
         val userId = sharedPreferences.getString("user_id", null)
 
         if (userId != null) {
-            val url = "http://travel.selada.id/api/members/checkoutAll" // Ganti dengan URL API Anda
+            val url = "http://travel.selada.id/api/members/checkoutAll"
 
             val requestBody = FormBody.Builder()
                 .add("user_id", userId)
@@ -354,6 +373,14 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         nfcAdapter.disableForegroundDispatch(this)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, LandingActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
+        finish()
     }
 }
 

@@ -32,6 +32,7 @@
         <activity
             android:name=".LandingActivity"
             android:exported="true">
+
         </activity>
 
         <activity
@@ -42,19 +43,14 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
             <meta-data
                 android:name="android.nfc.action.TECH_DISCOVERED"
@@ -63,5 +59,4 @@
 
         <activity android:name=".StatusActivity" />
     </application>
-
 </manifest>

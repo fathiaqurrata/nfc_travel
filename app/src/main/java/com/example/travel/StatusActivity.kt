@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +23,7 @@ class StatusActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userId: String
+    private lateinit var fullname: String
     private val memberList = mutableListOf<Member>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +35,15 @@ class StatusActivity : AppCompatActivity() {
         userId = sharedPreferences.getString("user_id", "Unknown User") ?: "Unknown User"
         val userIdTextView = findViewById<TextView>(R.id.user_id_text_view)
         userIdTextView.text = "User ID: $userId"
+
+        fullname = sharedPreferences.getString("fullname", "Unknown User") ?: "Unknown User"
+        val fullnameTextView = findViewById<TextView>(R.id.name_user)
+        fullnameTextView.text = "$fullname"
+
+        val sortTextView = findViewById<TextView>(R.id.sort_button)
+        sortTextView.setOnClickListener {
+            showSortDialog()
+        }
 
         fetchStatus(userId)
     }
@@ -74,19 +85,16 @@ class StatusActivity : AppCompatActivity() {
                             val memberObject = participantsArray.getJSONObject(i)
                             val fullname = memberObject.optString("fullname", "Unknown")
                             val phone = memberObject.optString("phone", "Unknown")
-                            val seat = memberObject.optString("seat", "Unknown")
+                            val classMember = memberObject.optString("class", "Unknown")
                             val status = memberObject.optInt("status", 0)
 
-                            val attendanceStatus = if (status == 1) "Hadir" else "Tidak Hadir"
+                            val attendanceStatus = if (status == 1) "Check In" else "Check Out"
 
-                            memberList.add(Member(fullname, phone, seat, attendanceStatus))
+                            memberList.add(Member(fullname, phone, classMember, attendanceStatus))
                         }
 
                         runOnUiThread {
-                            val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-                            recyclerView.layoutManager = GridLayoutManager(this@StatusActivity, 2)
-                            val adapter = MemberAdapter(memberList) { member -> showPhoneNumber(member) }
-                            recyclerView.adapter = adapter
+                            updateRecyclerView()
                         }
                     } catch (e: Exception) {
                         Log.e("StatusActivity", "Error parsing JSON: ${e.message}")
@@ -101,6 +109,62 @@ class StatusActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun updateRecyclerView() {
+        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+        recyclerView.layoutManager = GridLayoutManager(this@StatusActivity, 1)
+        val adapter = MemberAdapter(memberList) { member ->
+            showMemberDetails(member)
+        }
+        recyclerView.adapter = adapter
+    }
+
+    // Menampilkan dialog pilihan untuk sorting
+    private fun showSortDialog() {
+        val options = arrayOf("Sort by Name", "Sort by Status")
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Sort Options")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> sortMemberListByName() // Sort by Name
+                    1 -> sortMemberListByStatus() // Sort by Status
+                }
+            }
+            .show()
+    }
+
+    private fun sortMemberListByName() {
+        memberList.sortBy { it.fullname }
+        updateRecyclerView()
+    }
+
+    private fun sortMemberListByStatus() {
+        memberList.sortBy { it.attendanceStatus }
+        updateRecyclerView()
+    }
+
+    private fun showMemberDetails(member: Member) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Member Details")
+
+        val message = """
+            Name: ${member.fullname}
+            Phone: ${member.phone}
+            Kelas: ${member.classMember}
+            Status: ${member.attendanceStatus}
+        """.trimIndent()
+
+        builder.setMessage(message)
+            .setCancelable(true)
+            .setPositiveButton("Call") { dialog, _ ->
+                showPhoneNumber(member)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Close") { dialog, _ -> dialog.dismiss() }
+
+        val alert = builder.create()
+        alert.show()
     }
 
     private fun showPhoneNumber(member: Member) {

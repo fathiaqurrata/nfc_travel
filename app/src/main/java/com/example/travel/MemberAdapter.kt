@@ -1,5 +1,7 @@
 package com.example.travel
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +15,7 @@ class MemberAdapter(
 
     class MemberViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameTextView: TextView = view.findViewById(R.id.member_name)
-        val seatTextView: TextView = view.findViewById(R.id.member_seat)
-        val attendanceTextView: TextView = view.findViewById(R.id.member_attendance)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemberViewHolder {
@@ -24,12 +25,20 @@ class MemberAdapter(
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         val member = members[position]
+
         holder.nameTextView.text = member.fullname
-        holder.seatTextView.text = member.seat
-        holder.attendanceTextView.text = member.attendanceStatus
+
+
+        holder.itemView.backgroundTintList = ColorStateList.valueOf(
+            when (member.attendanceStatus) {
+                "Check In" -> Color.parseColor("#377E4F")
+                "Check Out" -> Color.parseColor("#980000")
+                else -> Color.TRANSPARENT
+            }
+        )
+
         holder.itemView.setOnClickListener { onMemberClick(member) }
     }
 
     override fun getItemCount() = members.size
 }
-

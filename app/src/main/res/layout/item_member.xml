@@ -1,55 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp"
-    android:layout_margin="8dp"
-    android:background="@drawable/bus_seat_background"
-    android:gravity="center_vertical">
+    android:orientation="horizontal"
+    android:padding="5dp"
+    android:background="@drawable/rounded_background_white"
+    android:layout_marginBottom="1dp">
 
     <TextView
-        android:id="@+id/member_attendance"
-        android:layout_width="wrap_content"
+        android:id="@+id/member_name"
+        android:layout_width="500dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="16sp"
-        android:layout_marginLeft="50dp"
+        android:layout_weight="0.9"
         android:gravity="center"
-        android:text="Attendance Status" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:id="@+id/seat_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@mipmap/seat"
-            android:layout_marginEnd="12dp"
-            android:contentDescription="Seat Icon"
-            app:tint="@color/colorPrimaryDarker" />
-
-        <TextView
-            android:id="@+id/member_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:text="Name"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/member_seat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textSize="16sp"
-            android:textColor="@android:color/darker_gray"
-            android:text="Seat Number"
-            android:visibility="gone" />
-    </LinearLayout>
+        android:textColor="@android:color/white"
+        android:textSize="20sp" />
 
 </LinearLayout>

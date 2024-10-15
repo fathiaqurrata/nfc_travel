@@ -25,6 +25,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var phoneNumberEditText: EditText
     private lateinit var cardNumberEditText: EditText
     private lateinit var seatEditText: EditText
+    private lateinit var classEditText: EditText
     private val client = OkHttpClient()
     private var nfcAdapter: NfcAdapter? = null
     private lateinit var nfcDialog: Dialog
@@ -37,6 +38,7 @@ class RegisterActivity : AppCompatActivity() {
         phoneNumberEditText = findViewById(R.id.edit_phone_number)
         cardNumberEditText = findViewById(R.id.edit_card_number)
         seatEditText = findViewById(R.id.edit_seat)
+        classEditText = findViewById(R.id.edit_class)
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         if (nfcAdapter == null) {
@@ -101,7 +103,7 @@ class RegisterActivity : AppCompatActivity() {
     private fun saveCardNumber(cardNumber: String) {
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
         sharedPreferences.edit().putString("card_number", cardNumber).apply()
-        cardNumberEditText.setText(cardNumber) // Optional: Display the NFC card number
+        cardNumberEditText.setText(cardNumber)
         Toast.makeText(this, "Card number saved successfully", Toast.LENGTH_SHORT).show()
     }
 
@@ -114,13 +116,13 @@ class RegisterActivity : AppCompatActivity() {
         val phoneNumber = phoneNumberEditText.text.toString().trim()
         val cardNumber = cardNumberEditText.text.toString().trim()
         val seatNumber = seatEditText.text.toString().trim()
+        val classNumber = classEditText.text.toString().trim()
 
         val sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val busLocation = sharedPreferences.getString("id_bus", null)
+        val busId = sharedPreferences.getString("id_bus", null)
 
-        if (fullName.isEmpty() || phoneNumber.isEmpty() || cardNumber.isEmpty() || seatNumber.isEmpty() || busLocation.isNullOrEmpty()) {
+        if (fullName.isEmpty() || phoneNumber.isEmpty() || cardNumber.isEmpty() || seatNumber.isEmpty() || classNumber.isEmpty() || busId.isNullOrEmpty()) {
             Toast.makeText(this, "All fields must be filled", Toast.LENGTH_SHORT).show()
-            Log.e("RegisterActivity", "All fields must be filled")
             return
         }
 
@@ -130,13 +132,11 @@ class RegisterActivity : AppCompatActivity() {
             jsonObject.put("phone_number", phoneNumber)
             jsonObject.put("card_number", cardNumber)
             jsonObject.put("seat", seatNumber)
-            jsonObject.put("bus_location", busLocation)
+            jsonObject.put("class", classNumber)
+            jsonObject.put("bus_location", busId)
         } catch (e: JSONException) {
-            Log.e("RegisterActivity", "JSON Exception: ${e.message}")
             e.printStackTrace()
         }
-
-        Log.d("RegisterActivity", "Sending registration request: $jsonObject")
 
         val requestBody = RequestBody.create("application/json; charset=utf-8".toMediaTypeOrNull(), jsonObject.toString())
         val url = "http://travel.selada.id/api/auth/register/member"
@@ -147,21 +147,18 @@ class RegisterActivity : AppCompatActivity() {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("RegisterActivity", "Registration request failed: ${e.message}")
                 runOnUiThread {
                     Toast.makeText(this@RegisterActivity, "Registration failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
-                Log.d("RegisterActivity", "Response code: ${response.code}, body: $responseBody")
                 runOnUiThread {
                     if (response.isSuccessful) {
                         Toast.makeText(this@RegisterActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
                         finish()
                     } else {
-                        Toast.makeText(this@RegisterActivity, "Registration failed: $responseBody", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@RegisterActivity, "Registration failed: ${response.body?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
